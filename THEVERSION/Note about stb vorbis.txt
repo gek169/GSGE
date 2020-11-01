@@ -1,0 +1,3 @@
+I commented line 580 to avoid a redefinition.
+
+uncomment it if stb vorbis doesnt work anymore

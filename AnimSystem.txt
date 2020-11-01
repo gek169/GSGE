@@ -1,0 +1,44 @@
+Animating a GkObject should be done by an entitycomponent
+
+The entity component should keep track of, per animation group:
+1) What animation is playing
+2) Time it started
+3) Time elapsed
+4) (if applicable) Time it ends
+
+It should also keep track of the order in which animations are applied. For instance:
+> A base animation which affects the entire object might be applied FIRST
+> an animation which animates the torso would be applied SECOND
+> an animation which animates the head would be applied THIRD
+
+There should be a vector of Playing Animations, sorted by animation group application.
+
+When you ask the entity component to begin playback of an animation, you specify:
+1) The animation group priority- the placement in the vector of playing animations.
+2) Initial Offset
+3) Length (Could be indefinite)
+
+There will be a base-class entity component "GkAnimPlayerComponent" that manages animation configuration.
+
+It will operate in the split process, set all animations (RelativeTransforms and whatnot) during the processor-intensive portion of the frame.
+
+~~~ANIM GROUP ROOTS~~
+It would be nice if animation group roots weren't fixed, but I can't think of a way around it. So that's that.
+
+Anim group roots are only used by character controllers and such to know what point to rotate heads and torsos around.
+
+My base class only needs an ApplyAnimGroupRotation(string animgroupname, quat rotation) function or the like.
+~~~HITBOXES~~~
+
+After intensive research it seems there is no way to avoid it.
+HitScan objects will have to be kinematic RigidBodies in the COL_HITSCAN group.
+
+We will thus REMOVE the ghostobjects vector from GkObject and add a Hitbox vector of BtRigidBody*'s
+
+Creating hitboxes will use the exact same code as creating rigid bodies-
+but mass is always zero.
+
+Hitboxes will sync using setCenterOfMassTransform.
+
+Hitboxes only need a collision shape, no other information
+is required for their job. They have mass zero.

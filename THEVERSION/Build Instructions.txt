@@ -1,0 +1,14 @@
+To build the library on a Linux System:
+1) Ensure you have the dependencies installed and your system is compatible
+2) run Q.sh to Quickly compile the entire engine and all demos.
+3) Attempt to run the test programs by doing ./mainX.bin (where X is the number of the demo)
+
+
+To build the library on a Windows System:
+1) Ensure that you have the dependencies installed correctly (MSYS2, Bullet Physics, OpenAL + redist, GLM, GLFW, etc)
+	NOTE: As of right now, MSYS2's MinGW-w64 has broken OpenGL headers by default. You'll need to grab an old version.
+2) Copy the DLLs associated with all dependencies from msys64/mingw64/bin to THEVERSION folder.(Needed to execute compiled programs outside of Msys2 environment)
+3) Open MSYS2's Mingw_W64 terminal
+4) Navigate to the THEVERSION directory
+5) Run Compiler_Call_MSYS2.sh\
+6) Run MainX.exe where X is replaced with the number of the demo you want to run.

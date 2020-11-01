@@ -1,0 +1,21 @@
+new shit:
+
+Old shit:
+//THIS WORKS!!!!
+g++ -o prog.exe stb_image.c gl3w.c shader.cpp FBO.cpp Mesh.cpp obj_loader.cpp texture.cpp main.cpp -lglew32s -lopengl32 -lglfw3dll -lglfw3 -IC:\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev1\mingw64\include -mwindows -static
+
+remove the mwindows to have the console again
+
+NOTES:
+it appears that -l<librarynamewithout.lib> is the format
+
+No clue what -o does
+
+Need to go to bed
+
+//WE DO NOT NEED THE -MINGW32 FLAG!!!
+
+
+FURTHER NOTES:
+-mwindows compiles without a console popping up. Bloody Brilliant!
+-static compiles the program statically

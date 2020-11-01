@@ -1,0 +1,80 @@
+#Second GSGE Object File Format Test
+#(C) gek April 2020
+
+SYNCMODE|ANIMATED
+#could also be ONE_TO_ONE or NONE
+
+#TO-BE-IMPLEMENTED: Collision sounds. 
+#When an object collides with another it can play a sound.
+#If both have sounds, then both play.
+#Either that or we get some in-between sound somehow...
+#Undetermined...
+#COLSOUND|COLLIDE.WAV
+DISABLECOLSOUNDS
+#We can also just demand that some sounds are loaded.
+#SOUND|BRUH.WAV
+
+
+MESH|FIRST_TERRAIN_WITH_CAVES.OBJ|0|1|0|0
+
+MSHMASK|15
+
+#set InstancedPHONG properties of the last mesh we created.
+PHONG_I_DIFF|1
+PHONG_I_CUBE_REF|0.1
+PHONG_I_AMB|1
+PHONG_I_SPECR|0
+PHONG_I_SPECD|30
+PHONG_I_EMISS|0
+#Push on textures, registering them to this mesh, starting from slot zero.
+
+TEXTURE|CLOUDS.JPG|0|NEAREST|REPEAT|4.0
+
+#Push on Cubemaps. Starting at 0.
+CUBEMAP|Cubemap/2desert_RIGHT.bmp|Cubemap/2desert_LEFT.bmp|Cubemap/2desert_UP.bmp|Cubemap/2desert_DOWN.bmp|Cubemap/2desert_BACK.bmp|Cubemap/2desert_FRONT.bmp
+
+
+#CREATING BTCOLLISIONSHAPES
+TRIMSHSHAPE|FIRST_TERRAIN_WITH_CAVES.OBJ|0
+#It's Shape 0 from now on.
+#If we had any properties to set about a btCollisionShape, they'd be here.
+
+#EXAMPLES OF OTHER SHAPES
+#Sphere     Radius, Independence
+#We at least need the radius. The rest CAN be assumed.
+#SPHERESHAPE|1|0
+#Box. XYZ dims. Independence. 
+#We at least need XYZ. The rest CAN be assumed
+#BOXSHAPE|1|2|3|0
+#Cylinder. RHR dims. Independence. 
+#CYLINDERSHAPE|1|2|1|0
+#CAPSULESHAPE and CONESHAPE lines follow the same conventions above, with Radius and Height being the dimensions, respectively (first 2 params)
+
+
+MSHINST|0|0
+
+PHONG_DIFF|1
+PHONG_CUBE_REF|0
+PHONG_AMB|1
+PHONG_SPECR|0
+PHONG_SPECD|30
+PHONG_EMISS|0
+MI_TEX|0
+MI_CUBE|0
+MI_DIFF_CUBE|0
+MI_REFL_CUBE|1
+MI_MSHMASK|15
+
+
+BTRIGIDBODY|0 |0 |0|0|0| 0|0|0| 0.9|0.2
+#Args: 
+#BTRIGIDBODY|SHAPE|MASS|INIT X|Y|Z|EULER X|Y|Z|FRICTION|RESTITUTION|ROLLINGFRICTION|LINEARDAMPENING|ANGULARDAMPENING
+
+
+
+#DEFINING ANIMATIONS
+
+ANIM|DEFAULT|0.0166666
+
+FRAME
+TRANSFORM|0| 0|0|0| 0|0|0| 1|1|1

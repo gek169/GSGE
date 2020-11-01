@@ -1,0 +1,447 @@
+How to dynamic object creation:
+
+
+IMPLEMENTED SECTION~~~~
+
+
+Allow getIndexedModelFromFile to take \COMMAND(args) commands which returns
+pre-made shapes (E.g. spheres, boxes).
+
+The pre-made shape commands need to allow for per-vertex colors to be set as
+well as GKMODEs to be set.
+
+Boxes need to have texture stretching/scaling options. (NOT IMPLEMENTED!)
+Spheres need to use the Mercater Projection for texture coordinates.
+
+I want to add more kinds of shapes.
+
+Format is \COMMAND(arg1,arg2,arg3)
+
+There will be no string args, only numbers.
+SplitString will use , as the separator.
+so that a line like this:
+\Sphere(1, 1, 0, 0 )
+Will produce these tokens:
+\Sphere(1
+ 1
+ 0
+ 0 )
+The \Sphere( will need to be removed from the first argument. 
+Since we know it terminates at the '(' character, 
+we can simply search for this in the first token and use substr to extract the first arg
+leading whitespace characters are skipped, though. Don't need to worry about them.
+
+
+In our game we'll simply have a Mesh* which is the "shape we're editing"
+Which we re-initialize with the indexedModel we want to use.
+
+>>>>>FOLLOWING IS OLD
+
+HOW TO DYNAMICALLY CREATE, EDIT, AND EXPORT GKOBJECTS
+* We can re-create a GkObject and then re-pass the 
+  Transforms to the rigid bodies making it up. 
+  
+  We'll have to code a system for doing this anyway when we write the 
+  savefile format. 
+
+  The idea being for this method that we could literally just dynamically
+  edit the GSGE file and re-create from file.
+
+  We could hook into Resources, grab text files, and forcefully re-insert
+  new strings into loadedTextFiles.
+
+  We could then have a saveChanges() method in Resources that writes all
+  editted text files (Maybe even IndexedModels) to file.
+
+  We could mark which text files have been editted with an
+  std::map<std::string, bool> haveEditted;
+
+  We could have separate directories for editted and original files.
+  Perhaps even specific save directories.
+
+  When loading a filename it would default to trying to load from the
+  save's directory. If it didn't exist, it would try to load from the
+  uneditted asset directory.
+
+  HOW ITS GONNA WORK THO:
+  The engine will have virtual stringstream* Save(std::string savename, bool isSuper) and
+  virtual stringstream* Load(std::string savename, bool isSuper)
+
+  the isSuper parameter says whether or not Load should pass the .gkmap file's stringstream* when it hits the GKSTOP command.
+  
+  Save will create a new directory ( geeksforgeeks.org/create-directoryfolder-cc-program/ )
+  Load will access the .gkmap file in that directory and load subsequent objects and meshes.
+
+  NOTE: We don't need the $SAVE system. We can just be intelligent and have GSGE files specify
+  saved resources for loading by their path (Relative to the working (game) directory)
+
+>>>> ALSO OLD  
+DYNAMIC TEXTURES
+  We'll have to go back and write a system for having Owned Textures.
+  We'll also have to write a way to export textures to file.
+  PNG, of course. stb_image_write.h is already in the source tree... just include it in Texture.cpp and
+  add SaveToFile(std::string filename) to gekRender::Texture.
+  We'll add an optional extra parameter to Textures for making them owned, otherwise they're shared
+  (Owned by Resources)
+
+  It'll be almost-never-used.
+  We'll also have a FORCEINDEPENDENT flag in loadObject, getAnObject, and addObject which forces dynamic textures (And disables templating.)
+
+
+
+
+SAVE FILE (and map file) FORMAT:
+
+We only need a few commands to do almost everything we want. 
+We need to be abl
+
+addObject|FILE.GSGE|NAME|<templated bool>|POS X|Y|Z|EULER X| Y| Z| SCALE X| Y| Z| ID
+
+setAnim|ANIM_NAME|<frame int>
+setRigidBodyTransform|id|POS X|Y|Z|EULER X|Y|Z
+setRigidBodyVel|id|LIN X|Y|Z|ANG X|Y|Z
+
+#Sets your spawn location in a game. Use GkObject by ID as a character.
+setCharController|ID|(char controller args)
+
+#We'll need most of the commands available to be called on GkObjects.
+#such as makeKinematic and setWorldTransform
+#because they may be used.
+#Again, you can use $SAVE/ for filenames
+#in the saves directory.
+#it will be ILLEGAL to try to load a static mesh from $SAVE
+#as in, undefined behavior. DON'T DO IT
+IND_MESH|(mesh args)
+STAT_MESH|(mesh args)
+MESHINST|<int independent mesh>|<uint meshmask>
+
+#all the arguments for this can be pulled from btTypedConstraint 
+#when we want to serialize it.
+createConstraint|(constraint_args)|<GkObj int>|<RigidBody int>|<GkObj int>|<RigidBody int>
+
+#used to tell the parser to stop parsing the GkMap file, so that an overriding engine can implement its own
+#save file stuff.
+GKSTOP
+
+
+NOTES ON SAVING/LOADING:
+
+In order to save/load GkObjects smoothly we'll need to code a system for having independent GkObjects export themselves to file.
+
+They will know the following:
+1) Every relevant line in their GSGE file, sorted by the object they created. Separate vectors.
+Things like PHONG properties can just be read from the object itself, no need for saving the line.
+
+We'll save the order BtShapes were created in and their args too.
+
+We'll have them export to a directory
+
+Textures won't export to PNG unless there were owned textures, 
+which is only supported for independent objects anyway. (We'll just check OwnedTextures.size())
+
+SAVE/LOAD DIRECTORIES:
+we'll have directories in the working directory like this, which
+Resources will prepend to our filename.
+
+Textures
+	X.png
+Shaders
+	X.vs
+	X.fs
+Cubemaps
+	X_front.jpg (...)
+Meshes
+	X.gkobj
+Maps
+	X.gkmap
+Objects
+	X.gsge
+Saves
+	Save_X
+		X.gkmap
+		mesh<index>.gkobj         //Independent mesh <index>
+		gsge<index>               //0 would be the first gsge loaded... etcetera.
+			<index>.gsge                 //editted GSGE file.
+			Textures
+				tex0.png
+			Meshes
+				mesh0.gkobj		  
+				hull0.gkobj
+				tris0.gkobj
+
+GkMap files know their containing directories so they don't need $SAVE or anything like that.
+
+$SAVE was a stupid idea
+	wait no it was smarter than I thought.
+
+COMPOUND SHAPES:
+
+
+Compound shapes can be constructed in the manner described in that saved StackOverflow page. The key method is:
+void addChildShape (const btTransform& localTransform, btCollisionShape* shape);
+It seems that stacking btCompoundShape has no downsides OTHER THAN BEING LESS ACCURATE.
+
+Proper Gmod Welding:
+We'll have a method that takes GkObjects and "welds" them together- A supreme fix to Gmod's shittiness.
+We'll use the CoM of all sub-objects as the center of the new shape for optimal behavior of the merged super-object.
+
+All resources will have to be cloned (One kind of GkObject can't be dependent on another, a violation of principle)
+The resulting GkObject will be independent but might use shared textures.
+
+THOUGHT:
+It'd be nice to be able to define the new object in such a way that it can be re-created without having to export to
+a save directory.
+THINKIN ON IT:
+If none of the sub-objects were scaled, the new welded objects' sub-objects won't have any scale either...
+As long as all the sub-objects were dependent and didn't scale anything, there's no reason we couldn't make the super-object
+dependent.
+In fact it could even be templated. We could construct a GSGE file on-the-fly, enable some badass instancing and shiz. Boom!
+But if any of them were independent (By pure coincidence, the only mode that we allowed scaling!) the super-object
+has to specify their scales.
+
+This means that when we generate the independent objects we'll have to create them
+at those locations with those scales
+before re-doing the weld.
+
+Thonkin: Satisfactory
+~~~~~~~~~~~~~~~~~~~~
+
+
+We'll make the compound shape line look like this.
+
+Note that initTransform's scaling will be applied to the positions in order to make positions work properly with
+our scaling system for independent GkObjects.
+
+The scaling system will of course break if shapes like btSphereShape are used and a scale of something other than 1 is used.
+But it should be just fine for mixed convex hulls... which is the primary use case i'm imagining.
+
+#if any of the previous shapes were independent, this is forced to be independent. IND flag.
+#Shapes are included by ID because you might want to use a shape twice.
+#masses are used to calculatePrincipalAxesTransform
+BTCOMPOUNDSHAPE|IND|ID|MASS|POS X|Y|Z|EULER X| Y|Z| ID|MASS|POS X|Y|Z|EULER X| Y|Z| ID|MASS|POS X|Y|Z|EULER X| Y|Z| ID|MASS|POS X|Y|Z|EULER X| Y|Z|
+
+calculatePrincipalAxesTransform requires a list of masses for sub-shapes.
+Masses have to be stored in a float array.
+Note that this method is how we generate a proper inertia btVector3 for a btCompoundShape, so we need to 
+change what we do in BtRigidBody creation to adjust to this. We need to check for COMPOUND_SHAPE_PROXY
+in the shape type and use calculatePrincipalAxesTransform
+
+We'll also have to "inversely" apply the principal to the sub-shapes (Via updateChildTransform)
+I'm guessing that just means use the transforms' inverse.
+
+We'll also do the transform to all matrices in animation DEFAULT that sync to the rigid body.
+
+In ANIMATED that's all of them.
+In NO_SYNC we do nothing
+In ONE_TO_ONE it's the ones that align to %RigidBodies.size()
+
+std::vector<float> Masses;
+We could have a vector of vectors for multiple compound shapes.
+std::vector<std::vector<float>> CompoundShapeMasses;
+
+>>>>PROBABLY CANCELLED
+#ANIMATION EDITOR
+
+Step 1) Construct a Skeleton with bones that represents the mesh
+	> Have to be able to load a file that stores this skeleton information.
+	> SYNC_ONE_TO_ONE for the preview object, use relative transforms
+	> BtRigidBodies sync to the locations of Bones.
+	> Should have a quick setup for human-like creatures.
+Step 2) Designate animation groups
+	> Animations with only a single frame, that set the idle pose for all meshinstances in the group.
+Step 3) Design animations that work on specific animation groups
+	> Stored in a project file as keyframes.
+	> Smoothstep and Slerp to interpolate bone rotations relative to their parents.
+	> Some way to choose between SmoothStep, SmootherStep, Lerp, and Step???
+Step 4) Render animation and Export.
+	> Simpy grab Meshinstance transforms every frame.
+
+
+
+INTERFACE:
+Setting poses:
+	Would like to use IK if possible. Should also be able to rotate bones with your mouse or
+	3D GUI elements that the user can click on.
+	Keyboard shortcuts for rotation directions should be provided.
+Timeline:
+	Drawn CPU-side to the BMPFontRenderer. Vertical bars for keyframes. Click on the timeline to pick the current frame.
+
+	Should be able to use right click to create new keyframes
+
+	Click on a keyframe to select it (go into editting it)
+
+	Segments between keyframes should be able to set interpolation method (Smooth, smoother, linear, step)
+
+	Segment after last keyframe just uses the last keyframe.
+
+	Deleting the first keyframe sets the first keyframe to the default pose.
+
+	Dragging the first keyframe duplicates it.
+
+
+>>>>>TODO
+#HEIGHTMAP GENERATION
+We'll have a createPlane(Xdim, Zdim, Xsub, Zsub, bool smooth) function that 
+returns an IndexedModel.
+The smooth boolean specifies whether or not Positions are unique- if it's false, positions are not unique.
+
+We'll have another function 
+genHeightMap(unchar* data, uint w, uint h, int comp, 
+float yScale,
+uint xGranularity, uint zGranularity, bool cubic_interp,
+bool smooth //Just passed to plane generator.
+)
+
+This will first generate a plane, Xdim = xGranularity * w, Zdim = zGranularity * h.
+We'll loop through all pixels in the image and set the appropriate (xG * x, zG * z, height=yScale * red) heights for
+non-interpolated items.
+
+All other heights will be set to -1, which is impossible so we can iterate over them in the next loop:
+
+If either xGran or zGran are greater than 1, we have points to interpolate (Default linearly, but cubic interp is
+enabled with cubic_interp)
+
+For all points needing interpolation:{
+	get their X and Z in the world as floats.
+	Divide them by Xgran and Zgran to get coordinates in texture's space.
+	Get rounded-up and rounded-down X and Z coords in texture's space (Xup, Xdown, Zup, Zdown)
+		//Literally just add 0.5 before int conversion.
+	Clamp Up and Down coords to be within [0,w) and [0,h).
+		//NOTE: We'll never get a value less than 0 from before clamping. Really just a greater than test.
+	HeightXMixRatio = SmoothStep or LinStep (Xdown, Xup, X/Xgran) //Maps from [Xdown, Xup] to [0,1]
+		Same for HeightZMixRatio
+	HeightX = Mix(Height at Xdown, Height at Xup, HeightXMixRatio) //Linearly Interpolates float on range.
+		Same for HeightZ
+	Height = 0.5 * HeightX + 0.5 * HeightZ //Average the two
+}
+
+>>>>>TODO, NEXT MAJOR FEATURE UPDATE
+~~~~SERIALIZATION SYSTEM~~~~~
+The order of serialization will be as follows
+
+> The id_ticker will be set to zero
+> GkEngine will ensure all GkObject IDs are unique. It will search for any duplicate IDs
+> by getting the ID of every GkObject and seeing if getObject(id) returns that object.
+> If there is a duplicate, then the second object with the same ID will fail this test.
+> The id_ticker will be used to get the lowest possible unique id for this object.
+
+
+> GkEngine will create the save directory in the working directory under saves/SAVENAME
+	> Using MakeDir
+> GkEngine will do any Custom Pre-Object exporting
+	> E.g. if it had to export rendertarget camera position. I assume that Rendertargets themselves are part of the game, of course.
+> GkEngine will export all Lights in the scene.
+	> The properties of all lights are known.
+	> Cameralights have a string property CreationInfo.
+		> This will allow them to describe how to make their desired Shadowmapping FBO, if they need one.
+> GkEngine will export all ParticleRenderers.
+	> One giant ass text file, separated by newlines, that just has the floats from particleData in it.
+	> At the beginning it'd have the settings.
+	> THAT'S IT
+> GkEngine will export its Entity Component Processors
+	> Implement-your-own serializer. Also, Implement your own parser. But I disgress.
+> GkEngine will export all GkObjects.
+
+	> COMPLICATED AS HELL... except for the most common and simple case, which is that it is unmodified from a GSGE file,
+		> or just scaled, so we can just specify that when we export...
+		> We WILL be supporting both
+	> All filenames, the names of the objects, etc have to be sanitized.
+	> Exporting Textures is trivial.
+	> Exporting collisionshapes requires manually parsing Bullet structures.
+		> Exporting compoundshapes is especially tricky. We'll maintain the assumption that
+		> there is only one compound shape in a GkObject, and that it's made from shapes preceding it.
+		> And that the masses for each child shape are saved.
+		> We won't be exporting the inertia or Center of mass or Principal. The GSGE loading process
+			> Already handles that bullshit completely.
+		> We will only support the collision shapes that we've coded GSGE line parsers for.
+			>ConvexHull
+				>Grab the points, pack into an indexedmodel, validate, and export as obj. Easy shit.
+			>btBvhTriangleMeshShape
+				>Grab the triangles, export as minimal OBJ with v and f lines only.
+			>Sphere
+			>Cone
+			>Capsule
+			>Cylinder
+			>CompoundShape <Limited: Only with supported shape types, no recursive, no BvhTriangleMeshShape>
+				> Erroneous sub-shapes will abort exporting of the GkObject. We will export no GkMap lines for it.
+				> We will sort all dependencies for the compound shape correctly.
+	> Exporting RigidBodies is trivial
+		> After the collision shapes are sorted and exported, we can simply see which rigid bodies point to which shapes.
+		> Relative position and rotation are irrelevant, so can just set them to zero in the GSGE file
+		> and over-write in the GKMAP.
+	> Exporting Meshes and MeshInstance declarations is trivial.
+		> Meshes can simply export their IndexedModels as OBJ files.
+		> Texture registration is derived from owned and shared textures.
+			> By filename, so that internal filename replacements (Such as //RENDERTARGET1 or the like) will work
+			> All owned textures are exported as PNG files.
+	> Cubemaps are never modified and so will always be dependent... loaded from file. We just get the filename.
+		> CubeMap.MyName;
+	> GkAnims are fairly straightforward and can be easily exported.
+		> Literally writing out 16 numbers and we're done
+	> Collision Sounds will be assumed to be loaded from file. The filename is stored in the GkObject.
+		> if it's wrong then there just won't be collision sounds for the object.
+> GkEngine will export all Constraints.
+	> Requires checking Bullet internal types and manually parsing Bullet structures.
+		> We have to figure out what to use in constructors. Mostly just requires reading the libbullet docs
+		> We won't support all constraint types. We won't support any of the gear types.
+		> If a constraint does not meet the criteria for exporting, then it fails to export.
+			> Such as a GkObject not existing.
+			> Such as a RigidBody in a GkObject not existing.
+		
+
+
+~~~~~~~~~~~~FREEZING SYSTEM~~~~~~~~~~~~~~~~~~~~~~~~~
+We need to check our rigid bodies' masses in exporting in the simple case and set them according to what they are
+in the BtRigidBody.
+
+If a mass is zero, the GKMAP file needs to have a SETRIGIDBODYMASS|ID| I|0| 0|0|0 call. 
+Format of the call:
+#where ID is the id of the GkObject, and I is the index into the list of rigid bodies.
+SETRIGIDBODYMASS| ID| I | MASS | INERTIA X|Y|Z
+
+In the complex case, we're already parsing the BtRigidBody mass and doing the right thing there. but if the inertia
+is zero, we need to call MAKECHARCONTROLLER in the GSGE file.
+
+~~~~~~~~~~~~~CONSTRAINT TYPES SUPPORTED AND REQUIRED CREATION ARGS~~~~
+//GMWeld
+btFixedConstraint
+RigidBody A
+RigidBody B
+Breaking Impulse threshhold
+bool NoCollide //Only for non-member constraints
+
+//Ball sockets.
+btPoint2PointConstraint
+Rigidbody A
+Rigidbody B
+Vec3 Pivot in A
+Vec3 Pivot in B
+Breaking Impulse Threshhold
+bool NoCollide
+
+//Most kinds of constraints you can think of.
+//Different from the spring variant.
+//I think we can do sliders with this so no need for slider constraint
+btGeneric6Dofconstraint
+Rigidbody A
+Rigidbody B
+Transform Frame in A
+Transform Frame in B
+vec3 Linear Lower Limit
+vec3 Linear Upper Limit
+vec3 Angular Lower Limit
+vec3 Angular Upper Limit
+vec3 Linear Stiffness
+vec3 Angular Stiffness
+vec3 Linear Dampening
+vec3 Angular Dampening
+Breaking Impulse Threshold
+bool NoCollide
+
+We can document whether or not Constraints
+were added as NoCollide by using:
+btRigidBody->getConstraintRef(index)
+btRigidBody->getNumConstraintRefs 
+If either of the bodies has a constraint ref to the
+constraint we're exporting, then it's nocollide.
+

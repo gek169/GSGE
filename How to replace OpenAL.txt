@@ -1,0 +1,12 @@
+You need to replace the OpenAL SO file with your own version if you want to avoid having an LGPL dependency... if that bothers you.
+I don't know what it's called but I'm sure you can find it.
+
+It needs a complete function name table and identical functionality
+to OpenAL
+
+You can check out the OpenAL headers to see what the interface you need to produce is, make sure to compile with -fPIC
+
+Documentation of OpenAL's functionality (so you can reproduce it with
+your own code) is available on their website:
+
+https://www.openal.org/documentation/

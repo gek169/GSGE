@@ -1,0 +1,59 @@
+GSGE needs an editor program for creating maps.
+
+Features:
+1) Ability to add and remove objects.
+	* Specify the args. GSGE file, name, isTemplated, creation transform (including scale)
+2) Dynamically create GSGE objects based on templates.
+	* #1 most important: BOX EDITOR
+	* Heightmap terrain GSGE file generator
+	* OBJ props
+3) Ability to edit Entity Components
+	* write values to maps, editor window edits values, then read values from maps.
+4) Ability to edit the VoxelWorld
+	* When creating the savefile, should choose whether or not you want a VoxelWorld
+		* Specify all the args. dimensions, scaling, transform and whatnot.
+	* Selection box.
+5) Ability to move objects, rotate them, and alter their creation scale 
+	* Altering creation scale deletes the object and re-creates it.
+	* The selector ray for this should mask for COL_NORMAL and COL_CHARACTERS
+		* It should be in COL_NORMAL
+		* Except when testing for widgets. Widgets are always in COL_EDITOR, ray in group COL_EDITOR masking for COL_EDITOR
+	* Move tool just stores position relative to ray end position of mouse. Translate to new ray end position + offset.
+		* Filter to X, Y, or Z
+			* As in, only change the position in that axis.
+	* Rotate widget uses mouse delta in X and Y (added together) to alter rotation in the selected axis.
+		* The widget should have an option for the number of radians rotated per delta.
+	* Scale not accessible through a widget. Select object, open properties menu, then enter a new creation scale. Then, force re-create.
+
+PLAN TO CREATE MY EDITOR
+STEP 1:
+	Create the ray selector tool.
+		* Selected objects are highlighted by rendering a bounding box around them, 25% transparent 0,255,0 box with 100 emiss 0 diff 0 specr
+			* Since we always select btRigidBodies we can use btRigidBody->getCollisionShape()->getAABB(btTransform)
+STEP 2:
+	Create the move tool.
+		* We won't bother with widgets. Make a key that does it.
+		* T->Z,X,C for filters. T alone just starts translating using current mouse hit point 
+			* (If no mouse hit point? fail command. The user should be hovering their mouse over what they want to move)
+			* You hit T, and it starts translating willy-nilly, but it remembers where the object used to be. Hit Z,X, or C to
+			restrict the transformation to those dimensions.
+		* Click/Enter to confirm, right click to cancel.
+		
+STEP 3:
+	Create the Object Adder/Deleter tool.
+		* Specify the full init transform (pos,rot,scale) of the object.
+STEP 4:
+	Create the Rotate tool.
+		* R->Z,X,C for Z,X,Y dimensions respectively.
+			* ?Free form rotate? Around the axis from the camera position to the object.
+STEP 5:
+	Create the Voxel Editor
+		* Controls like fly camera
+		* The green selector box is used here to highlight the block(s) you're going to edit
+			* Right click to place with no active selection. If active selection, right click to fill selection with block.
+		* Scroll up and down to select block value to place with right click
+			* Or type the number in, 0-255 in a menu.
+		* Left click cancels the current selection if there is one.
+			* If there is no selection, starts creating a selection.
+		* Fixed distance in front of the camera.
+		* voxelworld is axis aligned and positioned, but it is scaled.

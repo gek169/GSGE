@@ -1,0 +1,183 @@
+Plan for GkEngine
+
+
+1) Basic Structure
+
+GkEngine is the class which handles the window, opengl/openal contexts, the scene, and the bullet world.
+
+GkObject is the class which handles Meshes, Meshinstances, Bullet objects, Textures, Cubemaps, etcetera.
+NOTE: Cubemaps will actually be owned by the engine.
+
+GkEngine is responsible for actually loading and prepping GkObjects,
+from the file format
+
+Example File:
+~~~~~~~~~~~~~
+TEMPLATENAME "Rubber_Ducky.GkObject"
+#If a template is created, it will have the above name.
+#Comment convention is like this
+
+SYNCMODE ONE_TO_ONE
+#Rigid body 0 syncs to Meshinstance 0 using transform 0 (Default animation frame)
+RECOMMENDED_ASSETMODE TEMPLATED
+#Preferred to be loaded as a dependent, template-based object.
+#This means that the engine will attempt to create a template for this object
+#(or find an existing one)
+#before making our actual instance.
+COLSOUND "bruh.wav"
+#Sounds are never owned, they are owned by the engine
+COLPRIORITY 1
+
+
+MESH "Obj1.obj" INDEPENDENT INSTANCED STATIC
+Texture "bruh.png" OPAQUE
+#Texture 0
+Texture "bruh2.png" OPAQUE
+#Texture 1
+#could be loaded as transparent with TRANSPARENT instead of OPAQUE
+CUBEMAP\ 
+"1.png"\
+"2.png"\
+"3.png"\
+"4.png"\
+"5.png"\
+"6.png"\
+#Notice that Backslash is being used to escape Newlines here.
+#This is an important part of the format.
+#All line types should have this ability
+#Escaped Newlines are simply DELETED from the string
+#before handling and replaced with a space
+
+#NOTE: To access an FBO...
+#Texture FBO 0 ELSE "bruh.png" OPAQUE
+#will attempt to grab FBO 0 by default, but if the engine can't, then it will grab
+#bruh.png as opaque to replace it.
+#Without an ELSE section
+#it may not load a texture and
+#completely fuck up the texture numbering scheme.
+#so ELSE is necessary
+#If a map doesn't have a render target
+#the GkObject file will still be usable
+#but will have less functionality.
+#Makes modding easier.
+ENDMESH
+#Obj1.obj is declared as a forced independent, forced instanced resource.
+#it is henceforth Mesh 0 in the object.
+#This is actually probably not advisable since 
+#Instanced rendering for something which only draws once is inherently
+#more expensive.
+
+MESH "Obj2.obj" STATIC
+#Obj2.obj is loaded as non-instanced, and will be independent or shared
+#as decided by game code. It could of course be forced to be 
+#non-instanced.
+#Static merely sets an optimization flag for GL
+#and doesn't prevent you from editting the object later.
+ENDMESH
+
+BTSHAPE CONVEX "Obj3.obj"
+#Define a BTShape, Convex hull, from OBJ file.
+#You could also define a BTSHAPE BOX (x) (y) (z)
+#Convex hulls can avoid having an OBJ file and instead merely list
+#points, by merely not including a filename encapsulated in quotes.
+#V 1 2 3
+#V 4 5 6
+#V 7 8 9
+#V 10 11 12
+#would specify a 4 point cloud 
+STATIC_FRICTION 0.4
+MASS 5
+#If there are any physical properties that need to be set, they are set here
+#E.g. you might need to set the mass of the shape
+#or the physical properties.
+#The coefficients of friction for instance...
+BTENDSHAPE
+#This line declares the end of the shape definition and uses
+#the given parameters (or defaults) to build the shape
+#Since it is the first and only shape it is shape zero.
+
+
+BTRIGIDBODY 0
+#Defines a rigid body with shape zero
+#NOTE: Templates NEVER create btCollisionObjects.
+MASS 10
+#Set mass to 10
+#Set any other physical properties here
+#or flags, for instance, for the rotational matrix to be fixed.
+BTENDRIGIDBODY
+#declares the end of the rigid body declaration, builds the shape
+
+MESHINST 0
+#declare a meshinstance registering to mesh zero, Obj1.obj
+#The syncmode has already determined how this meshinstance will position itself
+#in 3d space.
+TEXTURE 0
+#The first texture will be used
+CUBEMAP 0
+#the first cubemap will be used
+ENDMESHINST
+
+ANIM DEFAULT
+#defining an animation, the default animation
+TIMING_HERTZ 60
+#Every 1/60 of a second, animation should advance.
+#If we assume a tickrate of 60 hz, that would be every frame.
+FRAME 0
+#The first frame
+INSTANCE 0
+#the first instance
+#This line starts a transform
+TRANSFORM
+1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1
+#We could force a Meshinstance registration to change by saying REGISTER 1
+#We could even force a texture change by saying TEXTURE 1
+#Cubemap changes could also be made.
+#Phong properties could be modified.
+#Drawing flags could be set.
+#masks could be changed
+#GhostObjects could be moved
+#Etc
+ENDFRAME
+ENDANIM
+#Instance 0 uses the identity matrix to exactly copy BtRigidBody 0's
+#World transform in the default animation frame.
+
+#End of File
+~~~~~~~~~~~~~~~~~~~
+
+
+HOW THE PARSER WILL WORK
+Different sections of the file will be handled differently, and every line type
+will have its own parsing code in the handlers.
+
+For instance, when a MESH line is encountered, the code will divert to
+a dedicated function for handling mesh loading.
+
+When a TEXTURE line is encountered within a MESH section, it is interpreted
+in a very specific way.
+
+The way it is interpreted is different from a MESHINSTANCE line.
+
+Any section of a line starting with a quotation mark is a filename or name.
+
+The stream type will be std::stringstream from <sstream>
+Which will have been loaded using an fstream from file, presumably.
+
+SPECIFICATION STRINGS
+To avoid the hastle of dicking with a spec string, the programmer could instead...
+Engine->AddObject("Rubber_Ducky.GkObject", false, false, "MyDuck");
+                   filename/string         israw   ^       name
+                                              Force independent
+NOTE israw says whether the first parameter is the raw GkObject string rather
+than a filename
+Engine->getObject("MyDuck")->RigidBodies[0]->setCenterOfMassTransform(Trans);
+
+HOW RESOURCES WILL BE MANAGED
+> Meshes and Textures are owned by GkObjects and are managed by them
+> Resource registration (E.g. Mesh to GkScene) is handled by the engine
+> GkObjects themselves are owned by GkEngine, and registration/dereg is
+> Entirely managed by GkEngine.
+> 

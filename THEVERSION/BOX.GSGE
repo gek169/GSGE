@@ -1,0 +1,125 @@
+#Third GSGE Object File Format Test
+#(C) gek April 2020
+
+DEFINE|$height|4
+DEFINE|$rad|3
+DEFINE|$mass|5
+
+SYNCMODE|ANIMATED
+#could also be ONE_TO_ONE or NONE
+
+#TO-BE-IMPLEMENTED: Collision sounds. 
+#When an object collides with another it can play a sound.
+#If both have sounds, then both play.
+#Either that or we get some in-between sound somehow...
+#Undetermined...
+#COLSOUND|COLLIDE.WAV
+#We can also just demand that some sounds are loaded.
+LOADSOUND|SOUNDS/TONE.WAV
+#it won't actually associate the sound with this object but it's useful for pre-caching.
+
+#MESH|\Sphere(1,10,10, 0,1,0)|$False|$True|$True|$False
+MESH|    \Box($rad,$rad,$rad, 0,1,0, 1)|$False|$True|$True|$False
+#extrude.obj
+#MESH|extrude2.obj|$False|$True|$True|$False
+#sphere_test.obj
+#MESH|Cube_Test_Low_Poly.obj|$False|$True|$True|$False
+#MESH|\Cone( $rad, $height, 10, 0,1,0)|$False|$True|$True|$False
+#It's mesh zero from now on.
+#Set the last mesh's Meshmask to -1. This is a convention that will be used throughout this file format.
+MSHMASK|15
+#set InstancedPHONG properties of the last mesh we created.
+PHONG_I_DIFF|1
+PHONG_I_CUBE_REF|0
+PHONG_I_AMB|1
+PHONG_I_SPECR|0
+PHONG_I_SPECD|30
+PHONG_I_EMISS|0
+#Push on textures, registering them to this mesh, starting from slot zero.
+#   File      Transparency,Filtering,Wrapmode,Anisotropics
+TEXTURE|CLOUDS.JPG|0|NEAREST|REPEAT|0.0
+#Push on Cubemaps. Starting at 0.
+#Straight up just throwing the images on here, 1 to 6.
+CUBEMAP|Cubemap/2desert_RIGHT.bmp|Cubemap/2desert_LEFT.bmp|Cubemap/2desert_UP.bmp|Cubemap/2desert_DOWN.bmp|Cubemap/2desert_BACK.bmp|Cubemap/2desert_FRONT.bmp
+
+
+#CREATING BTCOLLISIONSHAPES
+
+#Hull.     OBJ file,    Independence
+#CONVEXHULL|\Sphere(1,5,5, 0,1,0)|0
+#CONVEXHULL|\Box(1,1,1, 0,1,0)|0
+
+
+
+#CONVEXHULL|extrude.obj|0
+#Creates a convex hull
+
+#\Sphere(rad, long_complex, lat_complex, r, g, b, texturemapping?)
+#\Box(xdim, ydim, zdim, r, g, b, texturemapping?, texscale_x, texscale_y, texscale_z)
+
+#EXAMPLES OF OTHER SHAPES
+#Sphere     Radius, Independence
+#We at least need the radius. The rest CAN be assumed.
+#SPHERESHAPE|1|0
+#Box. XYZ dims. Independence. 
+#We at least need XYZ. The rest CAN be assumed
+BOXSHAPE|$rad|$rad|$rad|0
+#CONESHAPE|$rad|$height|0
+#Cylinder. RHR dims. Independence. 
+#CYLINDERSHAPE|1|2|1|0
+#CAPSULESHAPE and CONESHAPE lines follow the same conventions above, with Radius and Height being the dimensions, respectively (first 2 params)
+
+#CREATING MESHINSTANCES
+#Meshinstance. Register to Mesh 0. Mask 0.
+MSHINST|0
+#it's Meshinstance 0.
+#Set the last Meshinstance created's Phong Properties.
+PHONG_DIFF|1
+PHONG_AMB|1
+PHONG_SPECR|0
+PHONG_SPECD|1
+PHONG_EMISS|0
+#Set the MeshInstance's Other various properties.
+MI_TEX|0
+MI_CUBE|0
+#Cubemap diffusion and reflectivity respectively. They're booleans, so 0 or 1.
+MI_DIFF_CUBE|0
+MI_REFL_CUBE|1
+#Meshmask.
+MI_MSHMASK|15
+
+#Create a rigid body using shape zero.
+BTRIGIDBODY|0| $mass| 0|0|0| 0|0|0|  0.3|0.5
+#It's rigid body zero.
+#the possible parameters of BTRIGIDBODY are as follows:
+#BTRIGIDBODY|SHAPE|MASS|INIT X|Y|Z|EULER X|Y|Z|FRICTION|RESTITUTION|ROLLINGFRICTION|LINEARDAMPENING|ANGULARDAMPENING
+#Here are what those do:
+#FRICTION: Kinetic friction coefficient between 2 objects is the coefficients of both of them multiplied together.
+#RESTITUTION: Bounciness, roughly. [0,1] is physical. 1 is super-rubber, 0 is totally inelastic.
+#ROLLINGFRICTION: The greater it is, the more wheels/balls/whatnot slow down as they roll.
+#LINEARDAMPENING: like air friction sort of, but exclusively for the linear motion of the object.
+#ANGULARDAMPENING: like air friction sort of, but exclusively for the angular motion of the object.
+
+#COMMANDS TO CALL THAT AFFECT RIGID BODIES
+#MAKECHARCONTROLLER
+#Sets the angular inertia of Rigid Body 0 ("the body" from henceforth) to 0, so that it doesn't rotate. 
+#This means the rotation can only be changed in your code, not by the physics tick.
+
+
+#DEFINING ANIMATIONS
+#Defining the default animation 
+ANIM|DEFAULT|0.0166666
+#ANIM|NAME(string)|TIMING(default:0.016666)
+
+#Frame zero.
+FRAME
+
+#Transformation matrix. Just the Identity. The first parameter is the meshinstance it operates on.
+#Note the use of spaces here. Not valid for filename or string params, but valid for all numerical params.
+#it is also valid to put spacing before MATRIX, in case you want to indent characters.
+#These numbers are floats, except for the first, which is an ID (integer)
+#If you don't want to or don't know how to make this
+#you can use TRANSFORM|id|POS X| Y| Z|EULER X| Y| Z|SCALE X| Y| Z
+#You only need the id parameter if you just want a default diagonal like this:
+#MATRIX|0| 1|0|0|0| 0|1|0|0| 0|0|1|0| 0|0|0|1
+TRANSFORM|0

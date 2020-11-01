@@ -1,0 +1,123 @@
+#First GSGE Object File Format Test
+#(C) gek April 2020
+
+DEFINE|$MASS|1|
+
+SYNCMODE|ONE_TO_ONE
+#could also be ONE_TO_ONE or NONE
+#This GkObject must be exported to GkMap.
+REQUIRES_EXPORT
+COLSOUND|AssetLibrary/Sounds/Gek's PD Sounds/Mono Tracks/Sound Effects/Metal Clink Tap 1 Random Whacks and Hits 1.wav
+MINCOLSOUNDIMPULSE|1.3
+#This command sets the loudness of the collision sound
+LOUDNESS|20.0
+#set pitch properties
+MINPITCH|0.3
+MAXPITCH|1.5
+#set gain min max
+MINGAIN|0.0
+MAXGAIN|3.0
+
+ROLLOFF|400.0
+MAXDISTANCE|10000000000.0
+#We can also just demand that some sounds are loaded.
+#LOADSOUND|BRUH.WAV
+#it won't actually associate the sound with this object but it's useful for pre-caching.
+
+#Mesh. Use Monkey3_C.OBJ. Not Independent. Static. Instanced. Don't Recalculate Normals.
+MESH|MONKEY3_C.OBJ|$False|$True|$True|$False
+#It's mesh zero from now on.
+#Set the last mesh's Meshmask to 15.
+MSHMASK|15
+#set Instanced PHONG properties of the last mesh we created.
+PHONG_I_DIFF|1
+PHONG_I_CUBE_REF|0
+PHONG_I_AMB|1
+PHONG_I_SPECR|0.1
+PHONG_I_SPECD|40
+PHONG_I_EMISS|0
+#Push on textures, registering them to this mesh, starting from slot zero.
+#        File      Transparency,Filtering,Wrapmode,Anisotropics
+#TEXTURE|AMIGA.PNG|$True|LINEAR|REPEAT|4.0
+#Push on Cubemaps. Starting at 0.
+#Straight up just throwing the images on here, 1 to 6.
+#CUBEMAP|Cubemap/2desert_RIGHT.bmp|Cubemap/2desert_LEFT.bmp|Cubemap/2desert_UP.bmp|Cubemap/2desert_DOWN.bmp|Cubemap/2desert_BACK.bmp|Cubemap/2desert_FRONT.bmp
+
+
+#CREATING BTCOLLISIONSHAPES
+
+#Hull.     OBJ file,    Independence
+CONVEXHULL|MONKEY3_C.OBJ|0
+#It's Shape 0 from now on.
+#If we had any properties to set about a btCollisionShape, they'd be here.
+#NOTE: when getting meshes you can use a command instead of getting a file.
+#here's a valid line:
+#CONVEXHULL|\Sphere(1,10,10, 0,0,0.2)|0
+#Creates a sphere as a convex hull
+#Of course if you want to make a sphere it's best to use the SPHERESHAPE command
+#since bullet physics will handle it faster and it won't have facets.
+#but if you want a sphere for a visual mesh? it's PERFECT my dude.
+#\Sphere(rad, long_complex, lat_complex, r, g, b)
+#\Box(xdim, ydim, zdim, r, g, b)
+
+#EXAMPLES OF OTHER SHAPES
+#Sphere     Radius, Independence
+#We at least need the radius. The rest CAN be assumed.
+#SPHERESHAPE|1|0
+#Box. XYZ dims. Independence. 
+#We at least need XYZ. The rest CAN be assumed
+#BOXSHAPE|1|2|3|0
+#Cylinder. RHR dims. Independence. 
+#CYLINDERSHAPE|1|2|1|0
+#CAPSULESHAPE and CONESHAPE lines follow the same conventions above, with Radius and Height being the dimensions, respectively (first 2 params)
+
+#CREATING MESHINSTANCES
+
+#Meshinstance. Register to Mesh 0. Mask 0.
+MSHINST|0
+#Meshmask.
+#Monkey heads don't cast shadows. Spooky!
+MI_MSHMASK|5
+MSHINST|0
+#There are 2 of them!
+#Set the last Meshinstance created's Phong Properties.
+PHONG_DIFF|1
+PHONG_CUBE_REF|1
+PHONG_AMB|1
+PHONG_SPECR|0.1
+PHONG_SPECD|30
+PHONG_EMISS|0
+#Set the MeshInstance's Other various properties.
+MI_TEX|0
+MI_CUBE|0
+#Cubemap diffusion and reflectivity respectively. They're booleans, so 0 or 1.
+MI_DIFF_CUBE|0
+MI_REFL_CUBE|0
+#Meshmask.
+#Monkey heads don't cast shadows. Spooky!
+MI_MSHMASK|5
+
+#Create a rigid body using shape zero. Mass 1. Initial XYZ relative to the object's center is zero, zero, zero. Euler Rotation is 0,0,0. Coefficients of Friction and Restitution are 0.3 and 0.5 respectively.
+BTRIGIDBODY|0| $MASS| 0|1|0| 0|0|0|  0.9|0.5
+BTRIGIDBODY|0| $MASS| 0|4|0| 0|0|0|  0.9|0.5
+#It's rigid body zero.
+#the possible parameters of BTRIGIDBODY are as follows:
+#BTRIGIDBODY|SHAPE|MASS|INIT X|Y|Z|EULER X|Y|Z|FRICTION|RESTITUTION|ROLLINGFRICTION|LINEARDAMPENING|ANGULARDAMPENING
+#Here are what those do:
+#FRICTION: Kinetic friction coefficient between 2 objects is the coefficients of both of them multiplied together.
+#RESTITUTION: Bounciness, roughly. [0,1] is physical. 1 is super-rubber, 0 is totally inelastic.
+#ROLLINGFRICTION: The greater it is, the more wheels/balls/whatnot slow down as they roll.
+#LINEARDAMPENING: like air friction sort of, but exclusively for the linear motion of the object.
+#ANGULARDAMPENING: like air friction sort of, but exclusively for the angular motion of the object.
+
+#COMMANDS TO CALL THAT AFFECT RIGID BODIES
+#MAKECHARCONTROLLER
+#Sets the angular inertia of Rigid Body 0 ("the body" from henceforth) to 0, so that it doesn't rotate. Rotation can only be changed in your code, not by the physics tick.
+
+#Make a fixed point constraint between the two bodies
+FIXEDCONSTRAINT|0|1|4e9
+
+#DEFINING ANIMATIONS
+ANIM|DEFAULT|0.0166666
+FRAME
+TRANSFORM|0| 0|0|0| 0|0|0| 1|1|1

@@ -1,0 +1,27 @@
+O file Generation Experimentation
+
+g++ -c *.c *.cpp -lopengl32 -lglfw3dll -lglfw3 -IC:\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev1\mingw64\include -m64 -ggdb -Wno-undef
+^ old 1
+
+g++ -S -O3 -ffast-math -msse4 -c *.c *.cpp  -lopengl32 -lglfw3dll -lglfw3 -IC:\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev1\mingw64\include -m64 -Wno-undef
+^ new one
+
+g++ -O3 -ffast-math -msse4 -c *.c *.cpp  -lopengl32 -lglfw3dll -lglfw3 -IC:\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev1\mingw64\include -m64 -Wno-undef
+^ new one
+
+
+DLL Generation
+
+g++ -shared -o gekRender.dll *.o -lopengl32 -lglfw3dll -lglfw3 -IC:\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev1\mingw64\include -m64 -ggdb -Wno-undef
+^ Old
+
+g++ -O3 -ffast-math -msse4 -shared -o gekRender.dll *.o -lopengl32 -lglfw3dll -lglfw3 -IC:\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev1\mingw64\include -m64 -Wno-undef
+^New 1
+
+Demo Compiling
+
+g++ -o prog2.exe appinfo.res main.cpp -lopengl32 -lglfw3dll -lglfw3 -IC:\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev1\mingw64\include -m64 -ggdb -Wno-undef -L. -lgekRender
+^ Old
+
+g++ -O3 -ffast-math -msse4 -o prog2.exe appinfo.res main.cpp -lopengl32 -lglfw3dll -lglfw3 -IC:\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev1\mingw64\include -m64 -Wno-undef -L. -lgekRender
+^ New

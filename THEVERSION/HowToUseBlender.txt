@@ -1,0 +1,37 @@
+When you've created your model, just export as OBJ. You can create per-vertex color using the OBJ Colorer utility and a texture.
+
+Please note that Z is up in blender, but Z is up in my game engine. You can set the axes of Blender's OBJ exporter to fix it or...
+
+You can use utils/ObjSwapYZ to swap the Y and Z coordinates of your models (including the normals)
+
+In Edit Mode:
+* E for extrude. Recommended you use Faces selection mode in the majority of cases.
+	* Right clicking to cancel does NOT cancel the extrude you still have to undo it.
+		* Right click cancel just cancels the "move" op that happens AFTER the extrude...
+	* can scale the extrusion without positioning to create inset faces
+	* Can move the extruded face 
+In the right-hand menu:
+* Mirror modifiers are really helpful
+* with all verts/faces selected hit U and click Smart UV Project to create texture coordinates.
+
+Use the F2 Addon to fill in faces box-illy (Like if you deleted a face of a sub-divided cube, how would you rebuild it? this tool)
+Just hit F with corner vert selected.
+
+Making maps:
+* Flip normals on cube
+	* Limit selection to visible button on the button bar! Prevents you from selecting backfaces.
+* Loop cut and slide
+* Extrude
+* Scale
+
+
+
+In all modes:
+* Right click to start moving, left click to confirm moving, right click to cancel moving
+	* hit X to restrict to X axis, same for Y and Z
+		* Hit again to use local coordinates
+* R to rotate
+	* hit X to restrict to X axis, same for Y and Z
+		* Hit again to use local coordinates
+* Use the left hand menu to create objects, don't bother with keyboard shortcuts
+	* Make sure the 3D cursor is set in the in-3d-view righthand menu.

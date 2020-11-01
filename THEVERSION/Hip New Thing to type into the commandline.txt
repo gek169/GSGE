@@ -1,0 +1,13 @@
+g++ -o prog.exe *.c *.cpp -lopengl32 -lglfw3dll -lglfw3 -IC:\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev1\mingw64\include 2>compilerlog.txt
+EDIT:
+You dont need glew32s
+
+For final compile add this flag and remove the 2 thingie
+-mwindows
+
+add -static if dynamic linking doesn't work out
+
+NOTE:
+
+I have noticed that GLFW crashes if you click in the CMD window then go to the graphics window.
+Hmm.

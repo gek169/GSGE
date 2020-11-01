@@ -1,0 +1,30 @@
+Filename will be ID.gsge
+Before anything, we have to write out that the object REQUIRES_EXPORT so that its require export flag will be set upon reload... so that
+all its assets get re-exported.
+Obviously it'll be independent so it will own everything.
+
+First, write out the collision sound and its settings.
+ > We actually store the collision sound filename in the GkObject...
+Second, Write out any owned textures.
+	* stbi_image_write_png
+	* Have a corresponding vector of filenames
+	* Write to a directory
+	TODO: Have to have a special line type for owned textures.
+Third, Write out meshes and their settings
+	* Export OBJs
+	* list off TEXTURE lines, we can retrieve all information about a texture from the Texture*
+		* If a safetexture has no Daddy0 then we consider the rules for exporting "broken" and cancel the export.
+			* We could also reference a placeholder texture.
+	* list off CUBEMAP lines
+		* just get the name
+Fourth, write out collision shapes
+	* BtConvexHullShapes will export to OBJ as vertex clusters.
+		* btVector3* getUnscaledPoints() and getNumPoints()
+	* BtBvhTriangleMeshShape has an export method now, so we can export them.
+	* Sphere, Cone, and Box are trivial.
+write out MeshInstance and RigidBody lines.
+write out Constraints.
+write out GkEntityComponent export lines.
+write out Animations.
+
+	

@@ -1,0 +1,60 @@
+#Third GSGE Object File Format Test
+#(C) gek April 2020
+
+SYNCMODE|ANIMATED
+
+
+
+#Mesh. OBJ. Not Independent. Static. Instanced. Recalculate Normals.
+MESH|extrude2.obj|$False|$True|$False|$False
+#sphere_test.obj
+MSHMASK|15
+#set InstancedPHONG properties of the last mesh we created.
+PHONG_I_DIFF|1
+PHONG_I_CUBE_REF|0
+PHONG_I_AMB|1
+PHONG_I_SPECR|0
+PHONG_I_SPECD|30
+PHONG_I_EMISS|0
+#Push on textures, registering them to this mesh, starting from slot zero.
+#   File      Transparency,Filtering,Wrapmode,Anisotropics
+TEXTURE|AssetLibrary/Textures/pdtextures/461223174.jpg|0|NEAREST|REPEAT|0.0
+#Push on Cubemaps. Starting at 0.
+CUBEMAP|Cubemap/2desert_RIGHT.bmp|Cubemap/2desert_LEFT.bmp|Cubemap/2desert_UP.bmp|Cubemap/2desert_DOWN.bmp|Cubemap/2desert_BACK.bmp|Cubemap/2desert_FRONT.bmp
+
+
+#CREATING BTCOLLISIONSHAPES
+
+
+CONVEXHULL|extrude2.obj|0
+#Creates a convex hull
+
+#CREATING MESHINSTANCES
+#Meshinstance. Register to Mesh 0. Mask 0.
+MSHINST|0|0
+#it's Meshinstance 0.
+#Set the last Meshinstance created's Phong Properties.
+PHONG_DIFF|1
+PHONG_AMB|1
+PHONG_SPECR|0.8
+PHONG_SPECD|80
+PHONG_EMISS|0
+#Set the MeshInstance's Other various properties.
+MI_TEX|0
+MI_CUBE|0
+#Cubemap diffusion and reflectivity respectively. They're booleans, so 0 or 1.
+MI_DIFF_CUBE|0
+MI_REFL_CUBE|0
+#Meshmask.
+MI_MSHMASK|15
+
+#Create a rigid body using shape zero.
+BTRIGIDBODY|0| 19| 0|0|0| 0|0|0|  0.3|0.5
+#It's rigid body zero.
+#the possible parameters of BTRIGIDBODY are as follows:
+#BTRIGIDBODY|SHAPE|MASS|INIT X|Y|Z|EULER X|Y|Z|FRICTION|RESTITUTION|ROLLINGFRICTION|LINEARDAMPENING|ANGULARDAMPENING
+#FRICTION: Kinetic friction coefficient between 2 objects is the coefficients of both of them multiplied together.
+#RESTITUTION: Bounciness, roughly. [0,1] is physical. 1 is super-rubber, 0 is totally inelastic.
+#ROLLINGFRICTION: The greater it is, the more wheels/balls/whatnot slow down as they roll.
+#LINEARDAMPENING: like air friction sort of, but exclusively for the linear motion of the object.
+#ANGULARDAMPENING: like air friction sort of, but exclusively for the angular motion of the object.

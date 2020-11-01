@@ -1,0 +1,24 @@
+step 1:
+Change main.cpp to be main.cpp.unused and then run this command from this folder:
+
+g++ -c *.c *.cpp -lopengl32 -lglfw3dll -lglfw3 -IC:\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev1\mingw64\include -m64 -ggdb -Wno-undef
+
+step 2:
+Don't change main.cpp to be back again yet, run this command:
+g++ -shared -o gekRender.dll *.o -lopengl32 -lglfw3dll -lglfw3 -IC:\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev1\mingw64\include -m64 -ggdb -Wno-undef
+
+at this point, you have the DLLs you need.
+
+step 3:
+Finally, You're ready to compile using Main.cpp. Whip out your dong...
+
+g++ -o prog2.exe main.cpp -lopengl32 -lglfw3dll -lglfw3 -IC:\mingw-w64\x86_64-7.1.0-posix-seh-rt_v5-rev1\mingw64\include -m64 -ggdb -Wno-undef -L. -lgekRender
+
+And it works.
+
+Amazing.
+
+
+
+NOTE:
+Havent tested AppInfo.res option in final compile... but it will probably work.

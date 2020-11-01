@@ -1,0 +1,23 @@
+#GSGE Animation.
+#TUTORIAL: Name your objects 0, 1, 2 etc inside of blender according to how you want them arranged
+#In your GSGE file (I.E. which meshinstances they are.)
+#Then run the export script again (unless you've done that already!) and it'll export the frames correctly
+#For instance, if you have 6 Meshes that you want to animate in your character
+#simply put the meshinstance declaration lines in your GSGE file
+#in any order.
+#Then remember the order and name the objects 0, 1, 2... in the same order the meshinstances
+#are listed in the GSGE file.
+#Then, you can copy-paste the contents of this file
+#into your GSGE file and it will have working animations.
+#Note that the timing is NOT exported automatically. Manually edit it please
+#Please also edit the name. UntitledAnimation is awfully generic, don't you think?
+ANIM|UntitledAnimation|0.0166666
+FRAME
+#Object name is $BODY
+TRANSFORM|$BODY|8.9009564163689e-09|0.0|-0.0|0.0|0.0|0.0|1.0|1.0|1.0|
+#Object name is $FRONTFEET
+TRANSFORM|$FRONTFEET|-2.9802322387695312e-08|-0.7037966251373291|0.6249728798866272|0.0|0.0|0.0|1.0|1.0|1.0|
+#Object name is $BACKFEET
+TRANSFORM|$BACKFEET|2.9802322387695312e-08|-0.7500805258750916|-0.47986260056495667|0.0|0.0|0.0|1.0|1.0|1.0|
+#Object name is $HEAD
+TRANSFORM|$HEAD|0.0|0.5272395610809326|1.2574164867401123|-0.17828889191150665|0.0|0.0|1.0|0.9999999403953552|0.9999999403953552|
