@@ -4,7 +4,7 @@
 
 The renderer can be replaced with a more complex one. Simple edits to the shader source code can 
 reinterpret phong material float values as PBR metallic workflow material props. Phong is used
-mostly because it is simple and... nostalgic.
+mostly because it is simple and... nostalgic. I like it.
 
 
 The animation system I wrote is a hack to avoid writing or using importer libraries for standardized formats.
