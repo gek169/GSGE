@@ -19,7 +19,7 @@ indent_mode=1
 
 [project]
 name=geks Simple Game Engine
-base_path=/home/gek/Programming/geks-Simple-Game-Engine/THEVERSION
+base_path=/home/gek/Programming/GSGE/THEVERSION/
 description=Gamers rise up
 file_patterns=*.c;*.cc;*.h;*.cpp;*.hpp;*.sh;*.vs;*.fs;*.gsge;*.GSGE;*.obj;*.gkobj;*.OBJ;*.GKOBJ;
 
@@ -29,12 +29,8 @@ long_line_column=72
 
 [files]
 current_page=1
-FILE_NAME_0=292;C++;0;EUTF-8;1;1;0;%2Fhome%2Fgek%2FProgramming%2Fgeks-Simple-Game-Engine%2FTHEVERSION%2Fmain7.cpp;0;4
-FILE_NAME_1=756;C++;0;EUTF-8;1;1;0;%2Fhome%2Fgek%2FProgramming%2Fgeks-Simple-Game-Engine%2FTHEVERSION%2Fmain3.cpp;0;4
-FILE_NAME_2=63284;C++;0;EUTF-8;1;1;0;%2Fhome%2Fgek%2FProgramming%2Fgeks-Simple-Game-Engine%2FTHEVERSION%2Finclude%2FGkEngine.h;0;4
-FILE_NAME_3=248997;C++;0;EUTF-8;1;1;0;%2Fhome%2Fgek%2FProgramming%2Fgeks-Simple-Game-Engine%2FTHEVERSION%2Flib%2FGkEngine.cpp;0;4
-FILE_NAME_4=22538;GLSL;0;EUTF-8;1;1;0;%2Fhome%2Fgek%2FProgramming%2Fgeks-Simple-Game-Engine%2FTHEVERSION%2Fshaders%2FFORWARD_MAINSHADER_UBO.fs;0;4
-FILE_NAME_5=22418;GLSL;0;EUTF-8;1;1;0;%2Fhome%2Fgek%2FProgramming%2Fgeks-Simple-Game-Engine%2FTHEVERSION%2Fshaders%2FFORWARD_MAINSHADER_UBO_ADDITIVE.fs;0;4
+FILE_NAME_0=25910;C++;0;EUTF-8;1;1;0;%2Fhome%2Fgek%2FProgramming%2FGSGE%2FTHEVERSION%2Finclude%2FGkEngine.h;0;4
+FILE_NAME_1=85433;C++;0;EUTF-8;1;1;0;%2Fhome%2Fgek%2FProgramming%2FGSGE%2FTHEVERSION%2Flib%2FGkEngine.cpp;0;4
 
 [VTE]
 last_dir=/home/gek
