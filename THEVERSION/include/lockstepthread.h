@@ -1,3 +1,12 @@
+
+/* Public Domain / CC0 3d Lock-Step Threading Implementation
+
+
+Written by Gek (DMHSW) in 2020
+
+
+*/
+
 #ifndef LOCKSTEPTHREAD_H
 #define LOCKSTEPTHREAD_H
 #include <pthread.h>
@@ -14,6 +23,7 @@ typedef struct {
 void init_lsthread(lsthread* t);
 void start_lsthread(lsthread* t);
 void kill_lsthread(lsthread* t);
+void destroy_lsthread(lsthread* t);
 void lock(lsthread* t);
 void step(lsthread* t);
 void* lsthread_func(void* me_void);
@@ -77,7 +87,6 @@ void* lsthread_func(void* me_void){
 	lsthread* me = (lsthread*) me_void;
 	int ret = 0;
 	if (!me)pthread_exit(NULL);
-	if(!me->execute)pthread_exit(NULL);
 	while (1) {
 		//ret = pthread_cond_wait(&(me->myCond), &(me->myMutex));
 		pthread_barrier_wait(&me->myBarrier);
